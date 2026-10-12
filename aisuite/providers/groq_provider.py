@@ -21,11 +21,18 @@ from aisuite.providers.message_converter import OpenAICompliantMessageConverter
 
 
 class GroqMessageConverter(OpenAICompliantMessageConverter):
-    """
-    Groq-specific message converter if needed
-    """
+    """Convert messages to the fields supported by Groq's request API."""
 
-    pass
+    @staticmethod
+    def convert_request(messages):
+        converted_messages = OpenAICompliantMessageConverter.convert_request(messages)
+        result = []
+        for message in converted_messages:
+            if isinstance(message, dict) and message.get("role") == "assistant":
+                message = message.copy()
+                message.pop("reasoning_content", None)
+            result.append(message)
+        return result
 
 
 class GroqProvider(Provider):
